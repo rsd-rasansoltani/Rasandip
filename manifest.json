@@ -1,3 +1,4 @@
+
 {
   "name": "Rasan Diplomacy",
   "short_name": "Rasan News",
@@ -8,39 +9,41 @@
   "theme_color": "#ff0099",
   "icons": [
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "72x72",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "96x96",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "128x128",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "144x144",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "152x152",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "192x192",
-      "type": "image/x-icon"
+      "type": "image/png"
     },
     {
-      "src": "logo2.ico",
+      "src": "logo2.png",
       "sizes": "512x512",
-      "type": "image/x-icon"
+      "type": "image/png"
     }
   ]
 }
+
+
