@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>پنل مدیریت - H4baCrsd (GitHub Live)</title>
+<style>
+  :root{
+    --bg:#0b1220;--card:#0f1724;--accent:#00c853;--muted:#94a3b8;--danger:#ff5252;
+    --glass: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:tahoma, Arial, "Helvetica Neue", sans-serif;background:linear-gradient(180deg,#071021 0%, #081426 100%);color:#e6eef6;padding:28px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0}
+  .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 20px rgba(2,6,23,.6)}
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
+  label{display:block;margin:8px 0 4px;color:var(--muted);font-size:13px}
+  input[type=text], input[type=password], textarea, select, input[type=file] {
+    width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.05);
+    background:rgba(255,255,255,.02);color:#fff;font-size:14px;
+  }
+  textarea{min-height:110px;resize:vertical}
+  button{background:var(--accent);color:#042018;padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+  .muted{color:var(--muted);font-size:13px}
+  .small{font-size:12px;color:var(--muted)}
+  .danger{background:var(--danger);color:#fff}
+  .row{display:flex;gap:8px}
+  .panel{padding:12px;margin-bottom:14px;border-radius:8px;background:var(--glass)}
+  .lists{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .category-box{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;min-height:120px}
+  .post-item{display:flex;gap:10px;padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);align-items:center}
+  .post-thumb{width:64px;height:48px;border-radius:6px;object-fit:cover;background:#041018}
+  .post-meta{flex:1}
+  .post-actions{display:flex;gap:6px}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px 8px;border-radius:6px;cursor:pointer}
+  .status{margin-top:8px;padding:10px;border-radius:6px;font-size:13px}
+  .ok{background:rgba(0,200,83,0.08);color:#7ff0a8}
+  .err{background:rgba(255,82,82,0.08);color:#ffb3b3}
+  .top-actions{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+  .search{margin-left:auto}
+  .flex{display:flex;align-items:center;gap:8px}
+  .footer-note{margin-top:12px;color:var(--muted);font-size:13px}
+  .meta-row{display:flex;gap:8px;align-items:center}
+  .image-preview{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:8px}
+  @media (max-width:980px){
+    .grid{grid-template-columns:1fr; }
+    .lists{grid-template-columns:1fr}
+    .search{order:3;width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>پنل مدیریت (GitHub Live) — Rasandip</h1>
+    <div class="small muted">اضافه / ویرایش / حذف پست‌ها — مستقیم در <code>data/posts.json</code></div>
+  </header>
+
+  <div class="card">
+    <div class="top-actions">
+      <div style="width:360px;">
+        <label>توکن GitHub (Personal access token)</label>
+        <input id="inputToken" type="password" placeholder="توکن را اینجا بچسبان (موقتاً در session ذخیره می‌شود)">
+        <div class="small muted">نیازمند scope: <code>repo</code></div>
+      </div>
+
+      <div style="width:220px;">
+        <label>شاخه (branch)</label>
+        <input id="inputBranch" type="text" value="main" />
+      </div>
+
+      <div class="flex">
+        <button id="btnLoad">بارگذاری posts.json</button>
+        <button id="btnReload" class="btn-ghost">رفرش</button>
+      </div>
+
+      <div class="search">
+        <input id="searchBox" type="text" placeholder="جستجو عنوان..." style="padding:8px;border-radius:8px;background:#071822;border:1px solid rgba(255,255,255,0.03);color:#fff" />
+      </div>
+    </div>
+
+    <div id="statusBox" class="status" style="display:none"></div>
+
+    <div class="grid" style="margin-top:12px">
+      <!-- فرم اضافه/ویرایش -->
+      <div>
+        <div class="panel card">
+          <h3 id="formTitle">افزودن پست جدید</h3>
+
+          <label>دسته</label>
+          <select id="fieldCategory">
+            <option value="world">از سرتاسر دنیا</option>
+            <option value="articles">آخرین مقالات</option>
+            <option value="gallery">گالری</option>
+            <option value="popular">Popular</option>
+            <option value="editorial">سرمقاله</option>
+          </select>
+
+          <label>عنوان</label>
+          <input id="fieldTitle" type="text" placeholder="عنوان پست">
+
+          <label>متن (خلاصه)</label>
+          <textarea id="fieldText" placeholder="متن/خلاصه مطلب (برای گالری خالی بگذارید)"></textarea>
+
+          <label>لینک تصویر (URL) — یا از فایل زیر آپلود کن</label>
+          <input id="fieldImage" type="text" placeholder="https://...">
+
+          <div style="margin-top:8px">
+            <label>آپلود تصویر (فایل)</label>
+            <input id="fileInput" type="file" accept="image/*">
+            <div class="small muted">تصویر پس از آپلود در <code>data/images/</code> ذخیره می‌شود و آدرس خام (raw) در فیلد تصویر قرار می‌گیرد.</div>
+            <img id="imagePreview" class="image-preview" style="display:none" alt="پیش‌نمایش تصویر">
+          </div>
+
+          <label>لینک مطلب (ادامه)</label>
+          <input id="fieldLink" type="text" placeholder="https://...">
+
+          <label>تاریخ (برای Popular)</label>
+          <input id="fieldDate" type="text" placeholder="۲۲ آذر ۱۴۰۴">
+
+          <input id="fieldId" type="hidden">
+
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button id="btnSave">افزودن</button>
+            <button id="btnUpdate" class="btn-ghost" style="display:none">ذخیره تغییرات</button>
+            <button id="btnCancel" class="btn-ghost" style="display:none">انصراف</button>
+          </div>
+
+          <div class="footer-note">
+            <strong>نکته:</strong> توکن در session ذخیره می‌شود تا نیاز به وارد کردن مکرر نباشد. بعد از اتمام کار توکن را پاک یا revoke کن.
+          </div>
+        </div>
+      </div>
+
+      <!-- لیست پست‌ها -->
+      <div>
+        <div class="panel card">
+          <h3>لیست پست‌ها</h3>
+          <div class="lists" id="categoriesContainer">
+            <!-- هر دسته با JS ساخته می‌شود -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:20px"></div>
+  <div class="small muted">نسخه داینامیک و مستقیم روی GitHub — پس از اعمال تغییرات چند ثانیه طول می‌کشد تا GitHub Pages تغییرات را نشان دهد.</div>
+</div>
+
+<script>
+/*
+  تنظیمات اولیه — مطابق ریپوی شما
+*/
+const USERNAME = "rsd-rasansoltani";
+const REPO = "Rasandip";
+const POSTS_PATH = "data/posts.json";
+const IMAGES_FOLDER = "data/images";
+let BRANCH = "main";
+
+/* ======== توابع عمومی برای base64 و utf8 ======== */
+function encodeContent(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function decodeContent(b64){
+  try{
+    return decodeURIComponent(escape(atob(b64)));
+  }catch(e){
+    // fallback
+    return atob(b64);
+  }
+}
+
+/* ======== وضعیت و عناصر UI ======== */
+let postsData = { world:[], articles:[], gallery:[], popular:[], editorial:[] };
+let fileSha = null;
+
+const $ = id => document.getElementById(id);
+const statusBox = $("statusBox");
+const inputToken = $("inputToken");
+const inputBranch = $("inputBranch");
+const btnLoad = $("btnLoad");
+const btnReload = $("btnReload");
+const btnSave = $("btnSave");
+const btnUpdate = $("btnUpdate");
+const btnCancel = $("btnCancel");
+const searchBox = $("searchBox");
+const categoriesContainer = $("categoriesContainer");
+const fileInput = $("fileInput");
+const imagePreview = $("imagePreview");
+
+/* ======== sessionStorage توکن ======== */
+function setToken(t){
+  if(!t) sessionStorage.removeItem("gh_token");
+  else sessionStorage.setItem("gh_token", t);
+}
+function getToken(){
+  return sessionStorage.getItem("gh_token") || "";
+}
+
+/* ======== نمایش وضعیت ======== */
+function showStatus(msg, type="ok"){
+  statusBox.style.display = "block";
+  statusBox.className = "status " + (type==="ok"?"ok":"err");
+  statusBox.innerText = msg;
+}
+function hideStatus(){
+  statusBox.style.display = "none";
+}
+
+/* ======== GitHub: دریافت فایل (posts.json) ======== */
+async function fetchFileFromGit(token, path = POSTS_PATH){
+  BRANCH = inputBranch.value.trim() || BRANCH;
+  const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
+  const headers = { Accept: "application/vnd.github+json" };
+  if(token) headers.Authorization = "token " + token;
+
+  const res = await fetch(url, { headers });
+  if(res.status === 404){
+    return { notFound: true };
+  }
+  if(!res.ok){
+    const txt = await res.text();
+    throw new Error("GitHub API error: " + res.status + " - " + txt);
+  }
+  const j = await res.json();
+  return j;
+}
+
+/* ======== GitHub: PUT عمومی برای هر مسیر (فایل یا تصویر) ======== */
+async function putFileToGitPath(token, path, contentBase64, message, sha=null){
+  const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${encodeURIComponent(path)}`;
+  const headers = { Accept: "application/vnd.github+json", Authorization: "token " + token, "Content-Type": "application/json" };
+  const body = {
+    message: message || `Update ${path} via admin panel`,
+    content: contentBase64,
+    branch: BRANCH
+  };
+  if(sha) body.sha = sha;
+  const res = await fetch(url, { method: "PUT", headers, body: JSON.stringify(body) });
+  if(!res.ok){
+    const txt = await res.text();
+    throw new Error("PUT error: " + res.status + " - " + txt);
+  }
+  return await res.json();
+}
+
+/* ======== آپلود تصویر به مخزن ========
+   ورودی: File object
+   خروجی: آدرس raw تصویر (string)
+*/
+async function uploadImageFile(file, token){
+  if(!file) throw new Error("No file provided");
+  // خواندن فایل به DataURL (base64)
+  const dataUrl = await readFileAsDataURL(file);
+  // جدا کردن base64
+  const parts = dataUrl.split(',');
+  if(parts.length < 2) throw new Error("Invalid file data");
+  const base64Data = parts[1];
+
+  // ساخت نام فایل امن
+  const safeName = sanitizeFilename(file.name);
+  const uniqueName = `${Date.now()}_${safeName}`;
+  const path = `${IMAGES_FOLDER}/${uniqueName}`;
+
+  // پیام commit
+  const message = `Add image ${uniqueName} via admin panel`;
+
+  // آپلود در گیت‌هاب
+  const res = await putFileToGitPath(token, path, base64Data, message);
+  // پس از آپلود، URL خام تصویر:
+  const rawUrl = `https://raw.githubusercontent.com/${USERNAME}/${REPO}/${BRANCH}/${path}`;
+  return rawUrl;
+}
+
+/* ======== کمکی: خواندن فایل به dataURL ======== */
+function readFileAsDataURL(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = ()=> resolve(r.result);
+    r.onerror = ()=> reject(new Error("Failed to read file"));
+    r.readAsDataURL(file);
+  });
+}
+
+/* ======== کمکی: پاکسازی نام فایل ======== */
+function sanitizeFilename(name){
+  // حذف کاراکترهای مشکل‌ساز و فشرده‌سازی فضاها
+  return name.replace(/[^\w\.\-\u0600-\u06FF]+/g, '_').replace(/_+/g, '_');
+}
+
+/* ======== لود اولیه و رندر ======== */
+async function loadAndRender(){
+  hideStatus();
+  const token = inputToken.value.trim() || getToken();
+  BRANCH = inputBranch.value.trim() || BRANCH;
+
+  if(token) setToken(token);
+  else {
+    // اگر توکن نداریم؛ اجازه کار با فایل public را می‌پرسیم
+    if(!confirm("توکن وارد نکردی — فقط می‌توانم فایل را بخوانم اگر public باشد. ادامه می‌دی؟")) {
+      return;
+    }
+  }
+
+  try{
+    showStatus("در حال دریافت posts.json از GitHub ...");
+    const file = await fetchFileFromGit(token, POSTS_PATH);
+    if(file.notFound){
+      postsData = { world:[], articles:[], gallery:[], popular:[], editorial:[] };
+      fileSha = null;
+      showStatus("فایل posts.json پیدا نشد — یک فایل خالی ساخته خواهد شد (در صورت ذخیره).", "ok");
+      renderAll();
+      return;
+    }
+    fileSha = file.sha;
+    const raw = decodeContent(file.content);
+    postsData = JSON.parse(raw);
+    ["world","articles","gallery","popular","editorial"].forEach(k=>{ if(!postsData[k]) postsData[k]=[]; });
+    showStatus("داده‌ها بارگذاری شد.", "ok");
+    renderAll();
+  }catch(err){
+    console.error(err);
+    showStatus("خطا هنگام دریافت از GitHub: " + err.message, "err");
+  }
+}
+
+/* ======== رندر همه چیز ======== */
+function renderAll(){
+  renderCategories();
+  clearForm();
+  hideStatus();
+}
+
+/* ======== رندر دسته‌ها و آیتم‌ها ======== */
+function renderCategories(filter=""){
+  categoriesContainer.innerHTML = "";
+  const keys = ["world","articles","gallery","popular","editorial"];
+  const labels = {
+    world: "از سرتاسر دنیا",
+    articles: "آخرین مقالات",
+    gallery: "گالری",
+    popular: "Popular",
+    editorial: "سرمقاله"
+  };
+
+  keys.forEach(k=>{
+    const box = document.createElement("div");
+    box.className = "category-box";
+    box.innerHTML = `<h4 style="margin:6px 0">${labels[k]} <span class="small muted">(${postsData[k].length})</span></h4>`;
+    const list = document.createElement("div");
+    list.style.maxHeight = "360px";
+    list.style.overflow = "auto";
+
+    postsData[k].forEach(post=>{
+      if(filter && !((post.title||"") + " " + (post.text||"")).toLowerCase().includes(filter.toLowerCase())) return;
+      const item = document.createElement("div");
+      item.className = "post-item";
+      const thumb = document.createElement("img");
+      thumb.className = "post-thumb";
+      thumb.src = post.image || "";
+      thumb.onerror = ()=>{ thumb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90'><rect width='100%' height='100%' fill='%2303161b'/></svg>"}
+      const meta = document.createElement("div");
+      meta.className = "post-meta";
+      meta.innerHTML = `<div style="font-weight:700">${escapeHtml(post.title||"بدون عنوان")}</div>
+                        <div class="small muted">${escapeHtml(post.date||"")}</div>`;
+      const actions = document.createElement("div");
+      actions.className = "post-actions";
+
+      const bEdit = document.createElement("button");
+      bEdit.className = "btn-ghost";
+      bEdit.innerText = "ویرایش";
+      bEdit.onclick = ()=>{ populateFormForEdit(k, post.id); };
+
+      const bDel = document.createElement("button");
+      bDel.className = "btn-ghost danger";
+      bDel.style.border = "1px solid rgba(255,255,255,0.03)";
+      bDel.onclick = ()=>{ deletePostConfirm(k, post.id); };
+      bDel.innerText = "حذف";
+
+      actions.appendChild(bEdit);
+      actions.appendChild(bDel);
+
+      item.appendChild(thumb);
+      item.appendChild(meta);
+      item.appendChild(actions);
+      list.appendChild(item);
+    });
+
+    box.appendChild(list);
+    categoriesContainer.appendChild(box);
+  });
+}
+
+/* ======== فرار از HTML برای جلوگیری از XSS در نمایش ======== */
+function escapeHtml(str){
+  if(!str) return "";
+  return String(str).replace(/[&<>"'`=\/]/g, function (s) {
+      return ({"&": '&amp;', "<": '&lt;', ">": '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '=': '&#x3D;', '`': '&#x60;'})[s];
+  });
+}
+
+/* ======== فرم: پاکسازی ======== */
+function clearForm(){
+  $("formTitle").innerText = "افزودن پست جدید";
+  $("fieldCategory").value = "world";
+  $("fieldTitle").value = "";
+  $("fieldText").value = "";
+  $("fieldImage").value = "";
+  $("fieldLink").value = "";
+  $("fieldDate").value = "";
+  $("fieldId").value = "";
+  btnSave.style.display = "";
+  btnUpdate.style.display = "none";
+  btnCancel.style.display = "none";
+  imagePreview.style.display = "none";
+  fileInput.value = "";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ======== فرم: پر کردن برای ویرایش ======== */
+function populateFormForEdit(category, id){
+  const list = postsData[category];
+  if(!list) return alert("پست پیدا نشد");
+  const post = list.find(p=>String(p.id) === String(id));
+  if(!post) return alert("پست پیدا نشد");
+  $("formTitle").innerText = "ویرایش پست";
+  $("fieldCategory").value = category;
+  $("fieldTitle").value = post.title || "";
+  $("fieldText").value = post.text || "";
+  $("fieldImage").value = post.image || "";
+  $("fieldLink").value = post.link || "";
+  $("fieldDate").value = post.date || "";
+  $("fieldId").value = post.id;
+  btnSave.style.display = "none";
+  btnUpdate.style.display = "";
+  btnCancel.style.display = "";
+  // پیش‌نمایش تصویر در صورت وجود
+  if(post.image){
+    imagePreview.src = post.image;
+    imagePreview.style.display = "block";
+  } else {
+    imagePreview.style.display = "none";
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ======== افزودن پست جدید ======== */
+async function addNewPost(){
+  const token = inputToken.value.trim() || getToken();
+  if(!token){ alert("برای افزودن پست باید توکن وارد کنی."); return; }
+  setToken(token);
+
+  try{
+    // اگر فایلی برای آپلود انتخاب شده باشد، اول آپلود کن
+    if(fileInput.files && fileInput.files[0]){
+      showStatus("در حال آپلود تصویر به GitHub ...");
+      btnSave.disabled = true;
+      const rawUrl = await uploadImageFile(fileInput.files[0], token);
+      $("fieldImage").value = rawUrl;
+      imagePreview.src = rawUrl;
+      imagePreview.style.display = "block";
+    }
+
+    const newPost = {
+      id: Date.now(),
+      title: $("fieldTitle").value.trim(),
+      text: $("fieldText").value.trim(),
+      image: $("fieldImage").value.trim(),
+      link: $("fieldLink").value.trim(),
+      date: $("fieldDate").value.trim()
+    };
+    const category = $("fieldCategory").value;
+
+    // اضافه کردن به آرایه محلی
+    postsData[category].unshift(newPost);
+
+    // ذخیره روی گیتهاب
+    await saveToGit("Add post: " + (newPost.title || "untitled"));
+    showStatus("پست جدید اضافه شد.", "ok");
+    clearForm();
+  }catch(err){
+    console.error(err);
+    showStatus("خطا هنگام افزودن پست: " + err.message, "err");
+  }finally{
+    btnSave.disabled = false;
+  }
+}
+
+/* ======== ویرایش پست موجود ======== */
+async function updateExistingPost(){
+  const token = inputToken.value.trim() || getToken();
+  if(!token){ alert("برای ویرایش پست باید توکن وارد کنی."); return; }
+  setToken(token);
+
+  try{
+    const id = $("fieldId").value;
+    const category = $("fieldCategory").value;
+
+    // اگر فایلی برای آپلود انتخاب شده باشد، آپلود کن و آدرس را جایگزین کن
+    if(fileInput.files && fileInput.files[0]){
+      showStatus("در حال آپلود تصویر به GitHub ...");
+      btnUpdate.disabled = true;
+      const rawUrl = await uploadImageFile(fileInput.files[0], token);
+      $("fieldImage").value = rawUrl;
+      imagePreview.src = rawUrl;
+      imagePreview.style.display = "block";
+    }
+
+    const arr = postsData[category];
+    const idx = arr.findIndex(p=>String(p.id) === String(id));
+    if(idx === -1) return alert("پست پیدا نشد.");
+
+    arr[idx].title = $("fieldTitle").value.trim();
+    arr[idx].text = $("fieldText").value.trim();
+    arr[idx].image = $("fieldImage").value.trim();
+    arr[idx].link = $("fieldLink").value.trim();
+    arr[idx].date = $("fieldDate").value.trim();
+
+    await saveToGit("Update post: " + (arr[idx].title || id));
+    showStatus("ویرایش ذخیره شد.", "ok");
+    clearForm();
+  }catch(err){
+    console.error(err);
+    showStatus("خطا هنگام ویرایش پست: " + err.message, "err");
+  }finally{
+    btnUpdate.disabled = false;
+  }
+}
+
+/* ======== حذف پست با تایید ======== */
+async function deletePostConfirm(category, id){
+  if(!confirm("مطمئنی می‌خوای این پست حذف بشه؟ این عمل برگشت‌پذیر نیست!")) return;
+  postsData[category] = postsData[category].filter(p=>String(p.id) !== String(id));
+  await saveToGit("Delete post: " + id);
+}
+
+/* ======== ذخیره‌ی کلی (مدیریت SHA) ======== */
+async function saveToGit(commitMessage){
+  const token = inputToken.value.trim() || getToken();
+  if(!token){ alert("توکن لازم است"); return; }
+  setToken(token);
+  try{
+    showStatus("در حال بروزرسانی posts.json ...");
+    // گرفتن آخرین نسخه برای دریافت SHA تازه (برای جلوگیری از conflict)
+    const file = await fetchFileFromGit(token, POSTS_PATH);
+    if(file.notFound){
+      fileSha = null;
+    } else {
+      fileSha = file.sha;
+    }
+    const contentBase64 = encodeContent(JSON.stringify(postsData, null, 2));
+    const res = await putFileToGitPath(token, POSTS_PATH, contentBase64, commitMessage, fileSha);
+    if(res && res.content && res.content.sha){
+      fileSha = res.content.sha;
+    }
+    showStatus("✅ با موفقیت ذخیره شد. commit: " + (res.commit && res.commit.sha ? res.commit.sha.slice(0,7) : ""), "ok");
+    renderAll();
+  }catch(err){
+    console.error(err);
+    showStatus("خطا هنگام ذخیره در GitHub: " + err.message, "err");
+  }
+}
+
+/* ======== اتصال رویدادها ======== */
+btnLoad.addEventListener("click", loadAndRender);
+btnReload.addEventListener("click", loadAndRender);
+btnSave.addEventListener("click", async ()=>{ btnSave.disabled = true; await addNewPost(); btnSave.disabled = false; });
+btnUpdate.addEventListener("click", async ()=>{ btnUpdate.disabled = true; await updateExistingPost(); btnUpdate.disabled = false; clearForm(); });
+btnCancel.addEventListener("click", ()=>{ clearForm(); });
+searchBox.addEventListener("input", ()=>{ renderCategories(searchBox.value.trim()); });
+
+fileInput.addEventListener("change", ()=>{
+  const f = fileInput.files && fileInput.files[0];
+  if(!f){ imagePreview.style.display = "none"; return; }
+  // پیش‌نمایش محلی (قبل از آپلود)
+  const url = URL.createObjectURL(f);
+  imagePreview.src = url;
+  imagePreview.style.display = "block";
+});
+
+/* ======== بار اول: اگر توکن در session هست، قرار بده در فیلد ======== */
+(function init(){
+  const t = getToken();
+  if(t) inputToken.value = t;
+  inputBranch.value = BRANCH;
+  // auto-load? نه — منتظر کاربر بمانیم که ابتدا توکن را وارد کند یا اجازه دهد فایل public خوانده شود
+})();
+</script>
+</body>
+</html>

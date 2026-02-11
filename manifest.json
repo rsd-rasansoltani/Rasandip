@@ -1,0 +1,46 @@
+{
+  "name": "Rasan Diplomacy",
+  "short_name": "Rasan News",
+  "description": "شبکه خبری هلدینگ فوربا راسان دیزاین سیاسی",
+  "start_url": "/rasandiplomacy.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#ff0099",
+  "icons": [
+    {
+      "src": "logo2.ico",
+      "sizes": "72x72",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "96x96",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "128x128",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "144x144",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "152x152",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo2.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon"
+    }
+  ]
+}
