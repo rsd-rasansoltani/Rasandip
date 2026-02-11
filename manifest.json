@@ -6,7 +6,7 @@
   "start_url": "/rasandiplomacy.html",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#ff0099",
+  "theme_color": "#ffffff0",
   "icons": [
     {
       "src": "logo2.png",
